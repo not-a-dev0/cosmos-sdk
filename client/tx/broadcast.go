@@ -29,7 +29,7 @@ type BroadcastReq struct {
 // broadcasted via a sync|async|block mechanism.
 func BroadcastTxRequest(cliCtx context.CLIContext, cdc *codec.Codec) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req BroadcastReq
+		var tx auth.StdTx
 
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
@@ -37,21 +37,19 @@ func BroadcastTxRequest(cliCtx context.CLIContext, cdc *codec.Codec) http.Handle
 			return
 		}
 
-		err = cdc.UnmarshalJSON(body, &req)
+		err = cdc.UnmarshalJSON(body, &tx)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
 
-		txBytes, err := cdc.MarshalBinaryLengthPrefixed(req.Tx)
+		txBytes, err := cdc.MarshalBinaryLengthPrefixed(tx)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return
 		}
 
-		cliCtx = cliCtx.WithBroadcastMode(req.Mode)
-
-		res, err := cliCtx.BroadcastTx(txBytes)
+		res, err := cliCtx.BroadcastTxSync(txBytes)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return

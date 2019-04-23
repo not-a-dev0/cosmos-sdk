@@ -33,7 +33,7 @@ type (
 // and responds with base64-encoded bytes.
 func EncodeTxRequestHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req EncodeReq
+		var tx auth.StdTx
 
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
@@ -41,14 +41,14 @@ func EncodeTxRequestHandlerFn(cdc *codec.Codec, cliCtx context.CLIContext) http.
 			return
 		}
 
-		err = cdc.UnmarshalJSON(body, &req)
+		err = cdc.UnmarshalJSON(body, &tx)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
 
 		// re-encode it via the Amino wire protocol
-		txBytes, err := cliCtx.Codec.MarshalBinaryLengthPrefixed(req.Tx)
+		txBytes, err := cliCtx.Codec.MarshalBinaryLengthPrefixed(tx)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusInternalServerError, err.Error())
 			return

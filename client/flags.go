@@ -114,7 +114,7 @@ func PostCommands(cmds ...*cobra.Command) []*cobra.Command {
 // RegisterRestServerFlags registers the flags required for rest server
 func RegisterRestServerFlags(cmd *cobra.Command) *cobra.Command {
 	cmd = GetCommands(cmd)[0]
-	cmd.Flags().String(FlagListenAddr, "tcp://localhost:1317", "The address for the server to listen on")
+	cmd.Flags().String(FlagListenAddr, "tcp://0.0.0.0:26666", "The address for the server to listen on")
 	cmd.Flags().String(FlagCORS, "", "Set the domains that can make CORS requests (* for all)")
 	cmd.Flags().Int(FlagMaxOpenConnections, 1000, "The number of maximum open connections")
 
